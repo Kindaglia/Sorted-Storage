@@ -7,9 +7,9 @@ Sorted-Storage is a mod that adds a new chest with sorting functionality. When y
 The Sorted Chest Interface
 
 ![Example 2](example1.png)
-orted Items Grouped by Name
+Sorted Items Grouped by Name
 
-![Example 3](example3.png)
+![Example 3](example3.png)  
 Crafting
 
 ## Author
