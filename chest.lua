@@ -12,7 +12,7 @@ local formspec_sorted_chest = "size[9,12.5]"..  -- Formspec size adjusted for la
     mcl_formspec.get_itemslot_bg(0,10.74,9,1)..  -- Add background for the final row of the player's inventory
     "listring[current_name;main]"..  -- Link the node inventory
     "listring[current_player;main]"  -- Link the player's inventory
-    minetest.register_node("voxelcube:sorted_chest", {
+    minetest.register_node("sortedstorage:sorted_chest", {
         description = "Sorted Chest",
         tiles = {
             "sorted_chest_up.png",          -- Top
@@ -63,7 +63,7 @@ local formspec_sorted_chest = "size[9,12.5]"..  -- Formspec size adjusted for la
             })
     
             -- Show the inventory formspec
-            minetest.show_formspec(player:get_player_name(), "voxelcube:sorted_chest_"..minetest.pos_to_string(pos), meta:get_string("formspec"))
+            minetest.show_formspec(player:get_player_name(), "sortedstorage:sorted_chest_"..minetest.pos_to_string(pos), meta:get_string("formspec"))
         end,
     
         -- Function to allow destruction only if the inventory is empty
@@ -76,7 +76,7 @@ local formspec_sorted_chest = "size[9,12.5]"..  -- Formspec size adjusted for la
     
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
-    if formname:match("^voxelcube:sorted_chest_") then
+    if formname:match("^sortedstorage:sorted_chest_") then
         if fields.sort_inventory then
             local player_name = player:get_player_name()
             local pos = minetest.string_to_pos(formname:match("sorted_chest_(.+)"))

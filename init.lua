@@ -1,8 +1,8 @@
 -- Ottieni il percorso del modulo
-local modpath = minetest.get_modpath("voxelcube")
+local modpath = minetest.get_modpath("sortedstorage")
 
 -- Registra il nodo "Sorted Chest"
-minetest.register_node("voxelcube:sorted_chest", {
+minetest.register_node("sortedstorage:sorted_chest", {
     description = "Dark Chest",
     tiles = {"sorted_chest_front.png"},
     drawtype = "nodebox",
@@ -14,7 +14,7 @@ minetest.register_node("voxelcube:sorted_chest", {
 
 -- Registra la ricetta di crafting
 minetest.register_craft({
-    output = "voxelcube:sorted_chest",  -- Output del crafting
+    output = "sortedstorage:sorted_chest",  -- Output del crafting
     recipe = {
         {"", "", ""},      -- Riga superiore
         {"mcl_barrels:barrel_closed", "mesecons:redstone", "mcl_barrels:barrel_closed"},  -- Riga centrale
