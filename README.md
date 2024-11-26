@@ -1,13 +1,7 @@
-# Tutorial
-https://rubenwardy.com/minetest_modding_book/it/basics/getting_started.html
-
-# free texture
-https://opengameart.org/content/pixel-texture-pack
-
-
-# dependece
-https://content.minetest.net/packages/PilzAdam/nether/
-
-
-# voxel_cube
 # Sorted-Storage
+
+Sorted-Storage is a mod that adds a new chest with sorting functionality. When you interact with the chest, it automatically sorts the items inside, stacking and grouping them alphabetically. This improves inventory organization, making it easier to manage items.
+
+## Author
+
+This mod is created by [Kindaglia](https://github.com/Kindaglia).
