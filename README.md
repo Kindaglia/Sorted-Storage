@@ -15,7 +15,3 @@ Crafting
 ## Author
 
 This mod is created by [Kindaglia](https://github.com/Kindaglia).
-
----
-
-Make sure to add the screenshot files (`example1.png`, `example2.png`, and `example3.png`) to the same folder where your `README.md` is located. These images will be displayed within the README when viewed on a platform that supports Markdown, like GitHub.
