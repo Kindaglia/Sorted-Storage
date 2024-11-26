@@ -136,9 +136,6 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                 items[i] = grouped_items[i] or ""
             end
             inv:set_list("main", items)
-
-            -- Notify player of completion
-            minetest.chat_send_player(player_name, "The items in the Sorted Chest have been sorted and grouped by name!")
         end
     end
 end)
