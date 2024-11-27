@@ -1,4 +1,5 @@
 local sorting_icon = "icon_sorting.png"  -- Sorting icon
+local smart_deposit_icon = "smart_deposit_icon.png" -- Smart deposit icon
 
 local formspec_sorted_chest = "size[9,12.5]"..  -- Formspec size adjusted for larger inventory
     "label[0,0;"..minetest.formspec_escape(minetest.colorize("#313131", "Sorted Chest")).."]"..
