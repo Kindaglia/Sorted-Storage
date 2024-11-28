@@ -53,7 +53,7 @@ local function deposito_inventory(player, pos)
     end
 end
 
--- Definizione della funzione sort_inventory all'esterno del blocco register_on_player_receive_fields
+-- Definition of the sort_inventory function outside the register_on_player_receive_fields block
 local function sort_inventory(player, pos)
     local meta = minetest.get_meta(pos)
     local inv = meta:get_inventory()
@@ -123,8 +123,8 @@ minetest.register_node("sortedstorage:sorted_chest", {
     paramtype2 = "facedir",
     is_ground_content = false,
     groups = { handy = 1, axey = 1, deco_block = 1, material_wood = 1, flammable = -1 },
-    _mcl_hardness = 5,  -- Durezza maggiore per una rottura più lenta
-    _mcl_blast_resistance = 3,  -- Resistenza alle esplosioni
+    _mcl_hardness = 5,  -- Higher hardness for slower breaking
+    _mcl_blast_resistance = 3,  -- Blast resistance
     node_box = {
         type = "fixed",
         fixed = {
