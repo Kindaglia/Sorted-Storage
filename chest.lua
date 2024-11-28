@@ -15,8 +15,7 @@ local formspec_sorted_chest = "size[9,12.5]"..  -- Formspec size adjusted for la
     "listring[current_name;main]"..  -- Link the node inventory
     "listring[current_player;main]"  -- Link the player's inventory
 
--- Definizione della funzione sendMessage all'esterno del blocco register_on_player_receive_fields
-local function sendMessage(player, pos)
+local function deposito_inventory(player, pos)
     local meta = minetest.get_meta(pos)
     local inv_chest = meta:get_inventory()
     local inv_player = player:get_inventory()
@@ -52,8 +51,61 @@ local function sendMessage(player, pos)
             end
         end
     end
+end
 
-    minetest.chat_send_player(player:get_player_name(), "Smart Deposit functionality triggered.")
+-- Definition of the sort_inventory function outside the register_on_player_receive_fields block
+local function sort_inventory(player, pos)
+    local meta = minetest.get_meta(pos)
+    local inv = meta:get_inventory()
+
+    -- Get all items from the chest
+    local items = inv:get_list("main")
+
+    -- Table for grouping and managing stacking
+    local grouped_items = {}
+
+    for _, stack in ipairs(items) do
+        if not stack:is_empty() then
+            local item_name = stack:get_name()
+            local stack_max = stack:get_stack_max()  -- Get the maximum stack size for the item
+            local count = stack:get_count()
+
+            -- Handle stacking
+            while count > 0 do
+                local added = false
+                for _, grouped_stack in ipairs(grouped_items) do
+                    if grouped_stack:get_name() == item_name and grouped_stack:get_count() < stack_max then
+                        local space_left = stack_max - grouped_stack:get_count()
+                        local to_add = math.min(space_left, count)
+                        grouped_stack:set_count(grouped_stack:get_count() + to_add)
+                        count = count - to_add
+                        added = true
+                        break
+                    end
+                end
+
+                if not added then
+                    -- Create a new slot if adding is not possible
+                    local new_stack = ItemStack(item_name)
+                    local to_add = math.min(stack_max, count)
+                    new_stack:set_count(to_add)
+                    table.insert(grouped_items, new_stack)
+                    count = count - to_add
+                end
+            end
+        end
+    end
+
+    -- Sort items by name
+    table.sort(grouped_items, function(a, b)
+        return a:get_name() < b:get_name()
+    end)
+
+    -- Fill the inventory with sorted items and empty slots
+    for i = 1, #items do
+        items[i] = grouped_items[i] or ""
+    end
+    inv:set_list("main", items)
 end
 
 minetest.register_node("sortedstorage:sorted_chest", {
@@ -71,8 +123,8 @@ minetest.register_node("sortedstorage:sorted_chest", {
     paramtype2 = "facedir",
     is_ground_content = false,
     groups = { handy = 1, axey = 1, deco_block = 1, material_wood = 1, flammable = -1 },
-    _mcl_hardness = 5,  -- Durezza maggiore per una rottura più lenta
-    _mcl_blast_resistance = 3,  -- Resistenza alle esplosioni
+    _mcl_hardness = 5,  -- Higher hardness for slower breaking
+    _mcl_blast_resistance = 3,  -- Blast resistance
     node_box = {
         type = "fixed",
         fixed = {
@@ -120,73 +172,16 @@ minetest.register_node("sortedstorage:sorted_chest", {
 
 minetest.register_on_player_receive_fields(function(player, formname, fields)
     if formname:match("^sortedstorage:sorted_chest_") then
+        local pos = minetest.string_to_pos(formname:match("sorted_chest_(.+)"))
+        if not pos then
+            minetest.chat_send_player(player:get_player_name(), "Error: Position not found.")
+            return
+        end
+
         if fields.sort_inventory then
-            local player_name = player:get_player_name()
-            local pos = minetest.string_to_pos(formname:match("sorted_chest_(.+)"))
-            if not pos then
-                minetest.chat_send_player(player_name, "Error: Position not found.")
-                return
-            end
-
-            local meta = minetest.get_meta(pos)
-            local inv = meta:get_inventory()
-
-            -- Get all items from the chest
-            local items = inv:get_list("main")
-
-            -- Table for grouping and managing stacking
-            local grouped_items = {}
-
-            for _, stack in ipairs(items) do
-                if not stack:is_empty() then
-                    local item_name = stack:get_name()
-                    local stack_max = stack:get_stack_max()  -- Get the maximum stack size for the item
-                    local count = stack:get_count()
-
-                    -- Handle stacking
-                    while count > 0 do
-                        local added = false
-                        for _, grouped_stack in ipairs(grouped_items) do
-                            if grouped_stack:get_name() == item_name and grouped_stack:get_count() < stack_max then
-                                local space_left = stack_max - grouped_stack:get_count()
-                                local to_add = math.min(space_left, count)
-                                grouped_stack:set_count(grouped_stack:get_count() + to_add)
-                                count = count - to_add
-                                added = true
-                                break
-                            end
-                        end
-
-                        if not added then
-                            -- Create a new slot if adding is not possible
-                            local new_stack = ItemStack(item_name)
-                            local to_add = math.min(stack_max, count)
-                            new_stack:set_count(to_add)
-                            table.insert(grouped_items, new_stack)
-                            count = count - to_add
-                        end
-                    end
-                end
-            end
-
-            -- Sort items by name
-            table.sort(grouped_items, function(a, b)
-                return a:get_name() < b:get_name()
-            end)
-
-            -- Fill the inventory with sorted items and empty slots
-            for i = 1, #items do
-                items[i] = grouped_items[i] or ""
-            end
-            inv:set_list("main", items)
-
+            sort_inventory(player, pos)
         elseif fields.smart_deposit then
-            local pos = minetest.string_to_pos(formname:match("sorted_chest_(.+)"))
-            if not pos then
-                minetest.chat_send_player(player:get_player_name(), "Error: Position not found.")
-                return
-            end
-            sendMessage(player, pos)
+            deposito_inventory(player, pos)
         end
     end
 end)
