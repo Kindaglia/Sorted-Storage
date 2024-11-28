@@ -14,6 +14,48 @@ local formspec_sorted_chest = "size[9,12.5]"..  -- Formspec size adjusted for la
     mcl_formspec.get_itemslot_bg(0,10.74,9,1)..  -- Add background for the final row of the player's inventory
     "listring[current_name;main]"..  -- Link the node inventory
     "listring[current_player;main]"  -- Link the player's inventory
+
+-- Definizione della funzione sendMessage all'esterno del blocco register_on_player_receive_fields
+local function sendMessage(player, pos)
+    local meta = minetest.get_meta(pos)
+    local inv_chest = meta:get_inventory()
+    local inv_player = player:get_inventory()
+
+    -- Get all items from the chest
+    local chest_items = inv_chest:get_list("main")
+
+    -- Create a table to track items already in the chest
+    local chest_item_names = {}
+    for _, stack in ipairs(chest_items) do
+        if not stack:is_empty() then
+            local item_name = stack:get_name()
+            chest_item_names[item_name] = true
+        end
+    end
+
+    -- Iterate over the player's inventory and move items that are already in the chest
+    for listname, list in pairs(inv_player:get_lists()) do
+        for index, stack in ipairs(list) do
+            if not stack:is_empty() then
+                local item_name = stack:get_name()
+                if chest_item_names[item_name] then
+                    local remaining_stack = inv_chest:add_item("main", stack)
+                    if not remaining_stack:is_empty() then
+                        -- If there are remaining items, update the player's inventory
+                        stack:take_item(stack:get_count() - remaining_stack:get_count())
+                        inv_player:set_stack(listname, index, stack)
+                    else
+                        -- If no items remain, clear the stack in the player's inventory
+                        inv_player:set_stack(listname, index, "")
+                    end
+                end
+            end
+        end
+    end
+
+    minetest.chat_send_player(player:get_player_name(), "Smart Deposit functionality triggered.")
+end
+
 minetest.register_node("sortedstorage:sorted_chest", {
     description = "Sorted Chest",
     tiles = {
@@ -137,10 +179,14 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
                 items[i] = grouped_items[i] or ""
             end
             inv:set_list("main", items)
-            
+
         elseif fields.smart_deposit then
-            -- Aggiungi qui la logica per la funzione smart_deposit
-            minetest.chat_send_player(player:get_player_name(), "Smart Deposit functionality triggered.")
+            local pos = minetest.string_to_pos(formname:match("sorted_chest_(.+)"))
+            if not pos then
+                minetest.chat_send_player(player:get_player_name(), "Error: Position not found.")
+                return
+            end
+            sendMessage(player, pos)
         end
     end
 end)
