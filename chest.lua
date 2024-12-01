@@ -122,7 +122,7 @@ minetest.register_node("sortedstorage:sorted_chest", {
     paramtype = "light",
     paramtype2 = "facedir",
     is_ground_content = false,
-    groups = { handy = 1, axey = 1, deco_block = 1, material_wood = 1, flammable = -1 },
+    groups = { handy = 1, axey = 1, deco_block = 1, material_wood = 1, flammable = -1  },
     _mcl_hardness = 5,  -- Higher hardness for slower breaking
     _mcl_blast_resistance = 3,  -- Blast resistance
     node_box = {
@@ -162,14 +162,23 @@ minetest.register_node("sortedstorage:sorted_chest", {
         minetest.show_formspec(player:get_player_name(), "sortedstorage:sorted_chest_"..minetest.pos_to_string(pos), meta:get_string("formspec"))
     end,
 
-    -- Function to allow destruction only if the inventory is empty
+    -- Always allow digging, but handle item dropping in on_destruct
     can_dig = function(pos, player)
+        return true -- Allow digging always
+    end,
+
+    -- Function to drop items when the node is destroyed
+    on_destruct = function(pos)
         local meta = minetest.get_meta(pos)
         local inv = meta:get_inventory()
-        return inv:is_empty("main") -- Allow digging only if the inventory is empty
+        for i = 1, inv:get_size("main") do
+            local stack = inv:get_stack("main", i)
+            if not stack:is_empty() then
+                minetest.add_item(pos, stack)
+            end
+        end
     end,
 })
-
 minetest.register_on_player_receive_fields(function(player, formname, fields)
     if formname:match("^sortedstorage:sorted_chest_") then
         local pos = minetest.string_to_pos(formname:match("sorted_chest_(.+)"))
